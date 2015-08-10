@@ -39,6 +39,6 @@ if [ -z $2 ];then
 			#compteur=`grep -c $lettre $dictionnaire`
 			echo "$compteur	- $lettre" >> TEMP
 		done
-	cat TEMP | sort -k1n
+	cat TEMP | sort -k1nr 
 	rm TEMP
 fi
