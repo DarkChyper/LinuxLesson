@@ -10,14 +10,7 @@
 # fichier $1                                                #
 #                                                           #
 # Avec 2 arguments :                                        #
-#           $2: 1 mot => vérifie si le mot existe dans le   #
-#                fichier ./dico.txt et trouve sa definition #
-#                sur www.wiktionnaire.fr sinon indique que  #
-#                le mot n'est pas dans la liste.            #
-#           $2: * => affiche tous les mots du fichier en 4  #
-#                 colonnes                                  #
-#           $2: *a => affiche tous les mots commanceant par #
-#                 a. fonctionne avec toutes les lettres     #
+#           $2: pseudo du joueur au jeu du pendu            #
 # ######################################################### #
 
 # On vérifie le fichier du dictionnaire
@@ -41,4 +34,30 @@ if [ -z $2 ];then
 		done
 	cat TEMP | sort -k1nr 
 	rm TEMP
+else
+	# mission 2 : un pendu :-)
+	
+	# définition des variables
+	# On récupère le pseudonyme du joueur
+	pseudo=$2
+	nbreEssai=7
+	finPartie=0
+	mot=`sort -R $dictionnaire | head -1`
+	lMot=${#mot}
+	lettresMot={}
+	temp=0
+	while [ $temps -lt $lmot ];do
+		echo ${mot:$temp:1}
+		let "temp += 1"
+	done
+	while [ $finPartie -ne 1 ];do
+		echo $mot
+		for lettre in $mot;do
+			echo $lettre
+		done
+		finPartie=1
+
+	done
+		
+	
 fi
