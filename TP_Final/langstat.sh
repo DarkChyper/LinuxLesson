@@ -36,28 +36,64 @@ if [ -z $2 ];then
 	rm TEMP
 else
 	# mission 2 : un pendu :-)
+	echo '# ############################## #'
+	echo '# BIENVENUE DANS LE JEU DE PENDU #'
+	echo '# ------------------------------ #'
+	echo '#  chargement du mot a trouver   #'
 	
 	# définition des variables
 	# On récupère le pseudonyme du joueur
 	pseudo=$2
-	nbreEssai=7
-	finPartie=0
+
+	# On choisit au hasard un mot dans le dictionnaire
 	mot=`sort -R $dictionnaire | head -1`
-	lMot=${#mot}
-	lettresMot={}
+	longueur=${#mot}
+	let "longueur -= 1"
+
+	# on prépare le mot à trouver
+	motATrouver=""
 	temp=0
-	while [ $temps -lt $lmot ];do
-		echo ${mot:$temp:1}
+	while [ $temp -lt $longueur ];do
+		if [ ${mot:$temp:1} == "-" ];then
+			motATrouver=${motATrouver}${mot:$temp:1}
+		else
+			motATrouver=${motATrouver}"_"
+		fi
 		let "temp += 1"
 	done
-	while [ $finPartie -ne 1 ];do
-		echo $mot
-		for lettre in $mot;do
-			echo $lettre
+
+	# on définit les variables du jeu
+	finDePartie=0
+	essais=7
+	
+
+	# Debut de la partie !!!
+	echo $pseudo la partie commence !
+
+	while [ $finDePartie -ne  1 ];do
+		# le joueur peut choisir une lettre
+		while [ -z $lettre ];do
+			lettre=""
+			read -p "Quelle lettre voulez-vous tenter ? " essai
+
+			# on test si le joueur n'a entré qu'un seul caractère
+			if [ ${#lettre} -lt 1 ] || [ ${#lettre} -gt 1 ];then
+				lettre=""
+			else
+				essai=${essai^^}
+				# on vérifie que l'unique caractère est l'une des lettre de l'alphabet
+				for lettre in 'A' 'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K' 'L' 'M' 'N' 'O' 'P' 'Q' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z'
+				do
+					if [ "$lettre" == "$essai" ];then
+						lettre=$essai
+					fi
+				done
+			fi
+		echo $lettre
+		# fin du choix de la lettre
+		# on résoud l'essai
 		done
-		finPartie=1
 
 	done
-		
 	
 fi
