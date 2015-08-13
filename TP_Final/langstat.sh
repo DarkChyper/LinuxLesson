@@ -36,14 +36,14 @@ if [ -z $2 ];then
 	rm TEMP
 else
 	# mission 2 : un pendu :-)
-	echo '# ############################## #'
-	echo '# BIENVENUE DANS LE JEU DE PENDU #'
-	echo '# ------------------------------ #'
-	echo '#  chargement du mot a trouver   #'
+	echo '# ######################################### #'
+	echo '#      BIENVENUE DANS LE JEU DE PENDU       #'
+	echo '# ----------------------------------------- #'
+	echo '#       chargement du mot a trouver         #'
 	
 	# définition des variables
 	# On récupère le pseudonyme du joueur
-	pseudo=$2
+	pseudonyme=$2
 
 	# On choisit au hasard un mot dans le dictionnaire
 	#mot=`sort -R $dictionnaire | head -1`
@@ -62,6 +62,16 @@ else
 		fi
 		let "temp += 1"
 	done
+	tableau=()
+	tableau[0]="    _______ \n   //   | \n  ||    0 \n  ||   /|\ \n  ||   / \ \n_/||__"
+	tableau[1]="    _______ \n   //   | \n  ||    0 \n  ||   /|\ \n  ||   /  \n_/||__"
+	tableau[2]="    _______ \n   //   | \n  ||    0 \n  ||   /|\ \n  ||  \n_/||__"
+	tableau[3]="    _______ \n   //   | \n  ||    0 \n  ||   /| \n  ||  \n_/||__"
+	tableau[4]="    _______ \n   //   | \n  ||    0 \n  ||   | \n  ||  \n_/||__"
+	tableau[5]="    _______ \n   //   | \n  ||    0 \n  ||    \n  ||  \n_/||__"
+	tableau[6]="    _______ \n   //   | \n  ||     \n  ||    \n  ||  \n_/||__"
+	tableau[7]="    _______ \n   // \n  || \n  ||   | \n  ||  \n_/||__"
+
 
 	# on définit les variables du jeu
 	finDePartie=0
@@ -69,15 +79,41 @@ else
 	texte="Tu as le droit de te tromper 7 fois"
 
 	# Debut de la partie !!!
-	echo $pseudo la partie commence !
+	echo "${pseudonyme} la partie commence !"
 
-	while [ $finDePartie -ne  1 ];do
+	while [ ${finDePartie} -ne  1 ];do
 		# ETAPE 0
 		# On affiche l'état de la partie
 		# affichage du pendu
+			case $nbEssais in
+				0)
+					echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|\ \n  ||   / \ \n_/||_______"
+					;;
+				1)	
+					echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|\ \n  ||   /   \n_/||_______"
+					;;
+				2)
+					echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|\ \n  ||       \n_/||_______"
+					;;
+				3)
+					echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|  \n  ||       \n_/||_______"
+					;;
+				4)
+					echo -e "   _______ \n  //    | \n  ||    0 \n  ||    |  \n  ||       \n_/||_______"
+					;;
+				5)
+					echo -e "   _______ \n  //    | \n  ||    0 \n  ||       \n  ||       \n_/||_______"
+					;;
+				6)
+					echo -e "   _______ \n  //    | \n  ||      \n  ||       \n  ||       \n_/||_______"
+					;;
+				7)
+					echo -e "   _______ \n  //      \n  ||      \n  ||       \n  ||       \n_/||_______"
+					;;
+			esac
 
 		# affichage du texte
-		echo ${texte}
+		echo -e "${texte}"
 		
 		# affichage du mot à trouver
 		echo "Le mot à trouver : ${motATrouver}"
@@ -142,7 +178,8 @@ else
 			let "nbEssais -= 1"
 			texte="La lettre $lettre n'est pas dans le mot à découvrir"
 			if [ $nbEssais -eq 0 ];then # déclenche la fin de partie en échec
-				echo "${texte}\nVous n'avez plus d'essai $pseudonyme. Vous avez perdu.\nLe mot à découvrir était ${mot}."
+				echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|\ \n  ||   / \ \n_/||_______"
+				echo -e "${texte}\nVous n'avez plus d'essai $pseudonyme. Vous avez perdu.\nLe mot à découvrir était ${mot}."
 				finDePartie=1
 			else
 				teste=${texte}"\nIl vous reste $nbEssais essais.\n" 
@@ -151,12 +188,12 @@ else
 			# le joueur a trouver une lettre
 			if [ "${motATrouver}" == "${mot}" ];then # déclenche la fin de partie avec succès
 				finDePartie=1
-				echo "Bravo $pseudonyme, tu as trouvé le mot avant d'être pendu !\n le mot était bien ${mot}."
+				echo -e "Bravo $pseudonyme, tu as trouvé le mot avant d'être pendu !\n le mot était bien ${mot}."
 			else 
 				texte="La lettre ${lettre} fait bien partie du mot à trouver.\n"
 		fi
 
 
 	done
-	echo "FIN DE PARTIE\nAU REVOIR"
+	echo -e "FIN DE PARTIE\nAU REVOIR"
 fi
