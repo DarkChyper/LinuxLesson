@@ -36,6 +36,7 @@ if [ -z $2 ];then
 	rm pointeur
 else
 	# mission 2 : un pendu :-)
+	clear
 	echo '# ######################################### #'
 	echo '#      BIENVENUE DANS LE JEU DE PENDU       #'
 	echo '# ----------------------------------------- #'
@@ -46,23 +47,27 @@ else
 	pseudonyme=$2
 
 	# On choisit au hasard un mot dans le dictionnaire
-	#mot=`sort -R $dictionnaire | head -1`
-	mot="TESTA"
+	mot=`sort -R $dictionnaire | head -1`
+	# le mot contient un retour à la ligne qu'il faut supprimer
 	longueur=${#mot}
-	longueurb=$longueur
-	#let "longueur -= 1"
+	let "longueur -= 1"
 
-	# on prépare le mot à trouver
-	motATrouver=""
+	# on prépare le mot à trouver en supprimant en même temps le retour à la ligne
+	motDevoile=""
+	motTemporaire=""
 	pointeur=0
 	while [ $pointeur -lt $longueur ];do
 		if [ ${mot:$pointeur:1} == "-" ];then
-			motATrouver=${motATrouver}${mot:$pointeur:1}
+			motDevoile=${motDevoile}${mot:$pointeur:1}
+			motTemporaire=${motTemporaire}${mot:$pointeur:1}
 		else
-			motATrouver=${motATrouver}"_"
+			motDevoile=${motDevoile}"_"
+			motTemporaire=${motTemporaire}${mot:$pointeur:1}
 		fi
 		let "pointeur += 1"
 	done
+	mot=$motTemporaire
+
 	tableau=()
 	tableau[0]="    _______ \n   //   | \n  ||    0 \n  ||   /|\ \n  ||   / \ \n_/||__"
 	tableau[1]="    _______ \n   //   | \n  ||    0 \n  ||   /|\ \n  ||   /  \n_/||__"
@@ -77,7 +82,7 @@ else
 	# on définit les variables du jeu
 	finDePartie=0
 	nbEssais=7
-	texte="Tu as le droit de te tromper 7 fois"
+	texte="Tu as le droit de te tromper $nbEssais fois"
 
 	# Debut de la partie !!!
 	echo "${pseudonyme} la partie commence !"
@@ -86,7 +91,11 @@ else
 		# ETAPE 0
 		# On affiche l'état de la partie
 		# affichage du pendu
-		case $nbEssais in
+		nbEssaisCorrige=0
+		let "nbEssaisCorrige = nbEssais + 1"
+		# on décale de 1 le nombre d'essais infructueux autorisé pour 
+		# ne pas être totalement pendu lorsqu'il nous reste 0 erreur possible
+		case $nbEssaisCorrige in
 			0)
 				echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|\ \n  ||   / \ \n_/||_______"
 				;;
@@ -111,13 +120,16 @@ else
 			7)
 				echo -e "   _______ \n  //      \n  ||      \n  ||       \n  ||       \n_/||_______"
 				;;
+			8)
+				echo -e "           \n  //      \n  ||      \n  ||       \n  ||       \n_/||_______"
+				;;
 		esac
 
 		# affichage du texte
 		echo -e "${texte}"
 		
 		# affichage du mot à trouver
-		echo "Le mot à trouver : ${motATrouver}"
+		echo "Le mot à trouver : ${motDevoile}"
 		
 		# ETAPE 1
 		# Le joueur choisit une lettre a tester, 
@@ -131,6 +143,7 @@ else
 			# on test si le joueur n'a entré qu'un seul caractère
 			if [ ${#essai} -lt 1 ] || [ ${#essai} -gt 1 ];then
 				lettre=""
+				echo "Il faut teste 1 seul caractère alphabétique sans accent à la fois."
 			else
 				essai=`echo "$essai" | tr '[:lower:]' '[:upper:]'`
 				# on vérifie que l'unique caractère est l'une des lettre de l'alphabet
@@ -148,26 +161,26 @@ else
 		# On vérifie si la lettre apparait dans le mot.
 		# Si la lettre apparait on ne décompte pas d'essai
 		# Si la lettre etait déjà découverte, on ne perd pas un essai
-		motAAfficher="" # le mot a afficher sera construit dedans
+		motTemporaire="" # le mot a afficher sera construit dedans
 		essaiOK=0 # passera a 1 si le joueur a trouvé une lettre du mot, sinon il perdra 1 au $nbEssais
-		pointeur=0 # on initialise la position du curseur
-		while [ $pointeur -lt $longueurb ];do
-			echo ${pointeur}
-			if [ "${motATrouver:${pointeur}:1}" = "_" ];then 
+		pointeur=0 # on initialise la position du curseur qui va se déplaccer lettre à lettre dans le mot 
+		while [ $pointeur -lt $longueur ];do
+
+			if [ "${motDevoile:${pointeur}:1}" = "_" ];then 
 			#### on est dans le cas où le pointeur pointe une lettre non trouvée
-				echo ${mot:$pointeur:1}
+
 				if [ "${mot:$pointeur:1}" = "$lettre" ];then
 					# si la lettre où se trouve le curseur correspond à l'essai du joueur, on l'affiche
-					motAAfficher=${motAAfficher}${lettre}
+					motTemporaire=${motTemporaire}${lettre}
 					essaiOK=1 # on indique que la lettre est apparu au moins une fois
 				else
 					# sinon on affiche un "_"
-					motAAfficher=${motAAfficher}"_"
+					motTemporaire=${motTemporaire}"_"
 				fi 
 			else
 			#### Sinon on affiche la lettre ou le tiret qui était déja affiché
-				motAAfficher=${motAAfficher}${mot:$pointeur:1}
-				if [ "${motATrouver:$pointeur:1}" = "${lettre}"];then
+				motTemporaire=${motTemporaire}${mot:$pointeur:1}
+				if [ "${motDevoile:$pointeur:1}" = "${lettre}" ];then
 					essaiOK=1 # on ne perd pas un essai pour une lettre que l'on avait déjà
 				fi
 
@@ -176,26 +189,29 @@ else
 		done
 		# fin de l'étape 2
 
-		motATrouver=$motAAfficher
+		motDevoile=$motTemporaire
 		# ETAPE 3 
 		# On résoud le coup du joueur
 		if [ $essaiOK -ne 1 ];then # la lettre n'est pas dans le mot à découvrir
 			let "nbEssais -= 1"
-			texte="La lettre $lettre n'est pas dans le mot à découvrir"
-			if [ $nbEssais -eq 0 ];then # déclenche la fin de partie en échec
+			texte="La lettre $lettre n'est pas dans le mot à découvrir\nTu as le droit de te tromper $nbEssais fois."
+
+			if [ $nbEssais -lt 0 ];then # déclenche la fin de partie en échec
+				clear 
 				echo -e "   _______ \n  //    | \n  ||    0 \n  ||   /|\ \n  ||   / \ \n_/||_______"
 				echo -e "${texte}\nVous n'avez plus d'essai $pseudonyme. Vous avez perdu.\nLe mot à découvrir était ${mot}."
 				finDePartie=1
 			else
-				teste=${texte}"\nIl vous reste $nbEssais essais.\n" 
+				clear # on clean l'écran pour passer à l'essai suivant
 			fi
 		else
 			# le joueur a trouver une lettre
-			if [ "${motATrouver}" == "${mot}" ];then # déclenche la fin de partie avec succès
+			if [ "${motDevoile}" == "${mot}" ];then # déclenche la fin de partie avec succès
 				finDePartie=1
 				echo -e "Bravo $pseudonyme, tu as trouvé le mot avant d'être pendu !\n le mot était bien ${mot}."
 			else 
-				texte="La lettre ${lettre} fait bien partie du mot à trouver.\n"
+				texte="La lettre ${lettre} fait bien partie du mot à trouver.\nTu as le droit de te tromper $nbEssais fois"
+				clear # on clean l'écran pour passer à l'essai suivant
 			fi
 		fi
 	done
